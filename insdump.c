@@ -226,10 +226,8 @@ id_main_parent (void)
 {
   const pid_t pid = pids.child;
   disassemble_info dis;
-
   struct id_instr ins;
   struct user_regs_struct regs;
-
   int status = 0;
 
   /* Get in sync with child process. Wait for it to stop. */
@@ -239,12 +237,11 @@ id_main_parent (void)
   }
 
   memset (&dis, 0, sizeof (disassemble_info));
-
   init_disassemble_info (&dis, NULL, id_buffer_printf);
+
   dis.buffer = (bfd_byte *) ins.data;
   dis.buffer_length = sizeof (ins.data);
   dis.endian = BFD_ENDIAN_LITTLE;
-
 #ifdef __x86_64__
   dis.mach = bfd_mach_x86_64;
 #else

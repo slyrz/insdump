@@ -6,7 +6,7 @@ a program executes.
 ### Quickstart
 
 Building insdump requires the library and header files of *bfd* and *opcodes*,
-provided by the [GNU binutils](www.gnu.org/s/binutils/).
+provided by the [GNU binutils](http://www.gnu.org/s/binutils/).
 If you have these files installed, run
 
     make

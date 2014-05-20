@@ -34,7 +34,7 @@
 
 /**
  * The parent process is the process which traces, disassembles and prints the
- * commands instruction. The child process is executing the command.
+ * command's instructions. The child process executes the command.
  */
 enum id_role { ID_PARENT, ID_CHILD };
 
@@ -60,10 +60,10 @@ struct id_pids {
 };
 
 /**
- * The fprintf function callback which must be passed to libopcodes. Instead
- * of printing the output directly to stdout, we write it to a buffer so that
- * we can get the print_insn_i386 result (the size of the instruction)
- * and print the raw instruction bytes first, just like the objdump does.
+ * The fprintf function callback passed to libopcodes. Instead of printing
+ * the output directly to stdout, we write it to a buffer so that we can get
+ * the print_insn() result (the size of the instruction) and print the raw
+ * instruction bytes first, just like objdump does.
  */
 static int id_buffer_printf (void *, const char *, ...);
 
@@ -95,7 +95,10 @@ id_buffer_printf (void *unused, const char *fmt, ...)
   va_end (args);
 
   if (ret >= 0) {
-    /* If the buffer is too small (impossible), end it with "...". */
+    /**
+     * If the buffer is too small (which is basically impossible), truncate its
+     * content by writing "..." at the end.
+     */
     if (buffer.len + ret > buffer.cap)
       strcpy (buffer.data + (buffer.cap - 4), "...");
     buffer.len += ret;
@@ -108,8 +111,7 @@ id_buffer_printf (void *unused, const char *fmt, ...)
 }
 
 /**
- * Disassembles and pretty prints the instruction stored in ins. The result
- * looks like
+ * Disassembles and pretty prints the instruction. The result looks like
  *
  *    7f09959621f0: 41 89 f8      mov    %edi,%r8d
  *    +-----------  +-------      +---------------

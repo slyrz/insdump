@@ -1,9 +1,8 @@
 /**
  * insdump - instruction dump.
  */
-#include <sys/ptrace.h>
-#include <sys/syscall.h>
 #include <sys/types.h>
+#include <sys/ptrace.h>
 #include <sys/user.h>
 #include <sys/wait.h>
 
@@ -59,14 +58,7 @@ struct id_pids {
   pid_t parent;
 };
 
-/**
- * The fprintf function callback passed to libopcodes. Instead of printing
- * the output directly to stdout, we write it to a buffer so that we can get
- * the print_insn() result (the size of the instruction) and print the raw
- * instruction bytes first, just like objdump does.
- */
-static int id_buffer_printf (void *, const char *, ...);
-
+static int  id_printfb (void *, const char *, ...);
 static void id_print (struct id_instr *, disassemble_info *);
 static void id_init (int, char **);
 static void id_fork () ;
@@ -81,8 +73,14 @@ static struct id_args args;
 static struct id_buffer buffer;
 static struct id_pids pids;
 
+/**
+ * The fprintf function callback passed to libopcodes. Instead of printing
+ * the output directly to stdout, we write it to a buffer so that we can get
+ * the print_insn() result (the size of the instruction) and print the raw
+ * instruction bytes first, just like objdump does.
+ */
 static int
-id_buffer_printf (void *unused, const char *fmt, ...)
+id_printfb (void *unused, const char *fmt, ...)
 {
   va_list args;
   int ret;
@@ -237,7 +235,7 @@ id_main_parent (void)
   }
 
   memset (&dis, 0, sizeof (disassemble_info));
-  init_disassemble_info (&dis, NULL, id_buffer_printf);
+  init_disassemble_info (&dis, NULL, id_printfb);
 
   dis.buffer = (bfd_byte *) ins.data;
   dis.buffer_length = sizeof (ins.data);

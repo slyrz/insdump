@@ -250,19 +250,21 @@ id_main_parent (void)
   kill (pid, SIGCONT);
 
   for (;;) {
-    ptrace (PTRACE_SINGLESTEP, pid, 0, 0);
+    if (ptrace (PTRACE_SINGLESTEP, pid, 0, 0) != 0)
+      err (EXIT_FAILURE, "ptrace(SINGLESTEP)");
 
     while (wait (&status) < 0) {
       if (errno == EINTR)
         continue;
-      err (EXIT_FAILURE, "waitpid");
+      err (EXIT_FAILURE, "wait");
     }
 
     if (WIFEXITED (status))
       break;
 
     /* Get register content to read current value of instruction pointer. */
-    ptrace (PTRACE_GETREGS, pid, 0, &regs);
+    if (ptrace (PTRACE_GETREGS, pid, 0, &regs) != 0)
+      err (EXIT_FAILURE, "ptrace(GETREGS)");
 
 #ifdef __x86_64__
     ins.ip = regs.rip;

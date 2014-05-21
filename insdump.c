@@ -205,7 +205,8 @@ id_main_child (void)
    * Allow parent process to trace us, then stop and wait until parent is
    * ready and wakes us up.
    */
-  ptrace (PTRACE_TRACEME, 0, 0, 0);
+  if (ptrace (PTRACE_TRACEME, 0, 0, 0) != 0)
+    err (EXIT_FAILURE, "ptrace-traceme");
   raise (SIGSTOP);
 
   /**
@@ -251,7 +252,7 @@ id_main_parent (void)
 
   for (;;) {
     if (ptrace (PTRACE_SINGLESTEP, pid, 0, 0) != 0)
-      err (EXIT_FAILURE, "ptrace(SINGLESTEP)");
+      err (EXIT_FAILURE, "ptrace-singlestep");
 
     while (wait (&status) < 0) {
       if (errno == EINTR)
@@ -264,7 +265,7 @@ id_main_parent (void)
 
     /* Get register content to read current value of instruction pointer. */
     if (ptrace (PTRACE_GETREGS, pid, 0, &regs) != 0)
-      err (EXIT_FAILURE, "ptrace(GETREGS)");
+      err (EXIT_FAILURE, "ptrace-getregs");
 
 #ifdef __x86_64__
     ins.ip = regs.rip;
